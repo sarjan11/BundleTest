@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- attachment to dispatcher servlet.  -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+
+<!-- The redirect.jsp will redirect the request to the DispatcherServlet, which in turn consults with the BeanNumberUrlHandlerMapping
+and invokes the Helloworldcontroller.
+
+The handleRequestInternal() method in the HelloworldController clas will be invoked. Here we return the message property under
+the name welcomeMesage and the view name welcomePage to the dispatcherservlet. As of now we only know the view name,k
+and to find the actual view to invoke we need a viewresolver. -->
+
+<!-- <bean id="viewResolver"
+ 	class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+ 	p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" /> -->
+ 	
+<bean id="viewResolver"
+ 	class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+ 		<property name="prefix">
+ 			<value>/WEB-INF/jsp/</value>
+ 		</property>
+ 		<property name="suffix">
+ 			<value>.jsp</value>
+ 		</property>
+ 	</bean>
+
+<!-- here the name attribute of the bean element indicates the url pattern to map the request. Since the id attribute can't obtain
+special character like "/" we specify the url pattern using the name attribute of the bean element. 
+by default the DispatcherServlet uses the BeanNumberUrsHandlerMapping to map the incoming request. The Beannameurlhandlermapping
+is used by default,you need not do any separate configuration for this. -->
+
+<bean id="myDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+	<property name="url" value="jdbc:mysql://localhost:3306/mysql" />
+	<property name="username" value="root" />
+	<property name="password" value="Sarjan07" />
+</bean>
+
+<bean id="mySessionFactory"
+class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+<property name="dataSource" ref="myDataSource">
+</property>
+	<property name="annotatedClasses">
+		<list>
+			<value>com.example.spring.pojo.Brand</value>
+		</list>
+	</property>
+	<property name="hibernateProperties">
+		<props>
+			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+			<prop key="hibernate.show_sql">true</prop>
+			<prop key="hibernate.hbm2ddl.auto">update</prop>
+		</props>
+	</property>
+</bean>
+<bean id="myBrandDao" class="com.example.spring.dao.BrandDaoImpl">
+		<property name="sessionFactory" ref="mySessionFactory"></property>
+</bean>
+
+<bean name="/brand/*.htm" class="com.example.spring.controller.BrandSearchController">
+	<property name="brandDao" ref="myBrandDao" />
+	
+</bean>
+
+</beans>
+
